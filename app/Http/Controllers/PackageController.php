@@ -167,8 +167,10 @@ class PackageController extends Controller
     /**
      * Update the specified package.
      */
-    public function update(Request $request, Package $package)
+    public function update(Request $request, $id)
     {
+        $package = Package::findOrFail($id);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'days' => 'required|string|max:255',
@@ -341,8 +343,10 @@ class PackageController extends Controller
     /**
      * Remove the specified package.
      */
-    public function destroy(Package $package)
+    public function destroy($id)
     {
+        $package = Package::findOrFail($id);
+
         DB::beginTransaction();
 
         try {

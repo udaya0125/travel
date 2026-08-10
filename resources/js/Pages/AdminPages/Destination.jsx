@@ -95,6 +95,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import AddDestinationForm from "@/AddFormComponents/AddDestinationForm";
+import Wrapper from "@/AdminWrapper/Wrapper";
 
 const Destination = () => {
     const [allDestinations, setAllDestinations] = useState([]);
@@ -157,6 +158,8 @@ const Destination = () => {
     };
 
     return (
+        <>
+        <Wrapper>
         <div className="bg-[#FAF8F5] -m-6 p-6 min-h-screen">
             <div className="mb-8 sm:mb-10 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
                 <div>
@@ -257,6 +260,8 @@ const Destination = () => {
                 handleUpdate={handleUpdate}
             />
         </div>
+        </Wrapper>
+        </>
     );
 };
 

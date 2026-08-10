@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('AdminPages/Package');
     });
 
-     Route::get('/ourpackage', [PackageController::class, 'index'])->name('ourpackage.index');
+    Route::get('/ourpackage', [PackageController::class, 'index'])->name('ourpackage.index');
     Route::post('/ourpackage', [PackageController::class, 'store'])->name('ourpackage.store');
     Route::put('/ourpackage/{id}', [PackageController::class, 'update'])->name('ourpackage.update');
     Route::delete('/ourpackage/{id}', [PackageController::class, 'destroy'])->name('ourpackage.destroy');

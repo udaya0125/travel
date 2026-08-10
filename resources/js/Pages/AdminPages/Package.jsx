@@ -95,6 +95,7 @@
 import AddPackageForm from "@/AddFormComponents/AddPackageForm";
 import React, { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import Wrapper from "@/AdminWrapper/Wrapper";
 
 const Package = () => {
     const [allPackages, setAllPackages] = useState([]);
@@ -176,6 +177,8 @@ const Package = () => {
     };
 
     return (
+        <>
+        <Wrapper>
         <div>
             <div className="mb-8 flex justify-between items-center">
                 <div>
@@ -354,6 +357,8 @@ const Package = () => {
                 handleUpdate={handleUpdate}
             />
         </div>
+        </Wrapper>
+        </>
     );
 };
 

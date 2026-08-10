@@ -1,3 +1,128 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+
+
+/* Quill Editor - standard size (descriptions, FAQ answers, etc.) */
+.custom-quill {
+    display: flex;
+    flex-direction: column;
+    height: 250px;
+    min-height: 200px;
+    max-height: 400px;
+}
+.custom-quill .ql-toolbar {
+    flex-shrink: 0;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    padding: 8px;
+}
+.custom-quill .ql-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 150px;
+    max-height: 340px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    border: none;
+}
+.custom-quill .ql-editor {
+    min-height: 150px;
+    max-height: 320px;
+    overflow-y: auto;
+    background-color: #f9fafb;
+    color: #1f2937;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+.custom-quill .ql-editor.ql-blank::before {
+    color: #9ca3af;
+    font-style: normal;
+    font-size: 0.875rem;
+}
+.custom-quill .ql-toolbar button:hover { color: #374151; }
+.custom-quill .ql-toolbar button.ql-active { color: #111827; }
+.custom-quill .ql-picker-label:hover { color: #374151; }
+.has-error .ql-toolbar { border-bottom-color: #fca5a5; }
+
+.custom-quill .ql-editor::-webkit-scrollbar,
+.custom-quill .ql-container::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-quill .ql-editor::-webkit-scrollbar-track,
+.custom-quill .ql-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+.custom-quill .ql-editor::-webkit-scrollbar-thumb,
+.custom-quill .ql-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+.custom-quill .ql-editor::-webkit-scrollbar-thumb:hover,
+.custom-quill .ql-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+/* Quill Editor - compact size (itinerary day descriptions) */
+.custom-quill-small {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 90px;
+    max-height: 180px;
+}
+.custom-quill-small .ql-toolbar {
+    flex-shrink: 0;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    padding: 5px;
+    flex-wrap: wrap;
+}
+.custom-quill-small .ql-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 70px;
+    max-height: 140px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    border: none;
+}
+.custom-quill-small .ql-editor {
+    min-height: 70px;
+    max-height: 130px;
+    overflow-y: auto;
+    background-color: #f9fafb;
+    color: #1f2937;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+.custom-quill-small .ql-editor.ql-blank::before {
+    color: #9ca3af;
+    font-style: normal;
+    font-size: 0.875rem;
+}
+.custom-quill-small .ql-toolbar button { padding: 3px; }
+.custom-quill-small .ql-toolbar button:hover { color: #374151; }
+.custom-quill-small .ql-toolbar button.ql-active { color: #111827; }
+
+.custom-quill-small .ql-editor::-webkit-scrollbar,
+.custom-quill-small .ql-container::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-quill-small .ql-editor::-webkit-scrollbar-track,
+.custom-quill-small .ql-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+.custom-quill-small .ql-editor::-webkit-scrollbar-thumb,
+.custom-quill-small .ql-container::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+.custom-quill-small .ql-editor::-webkit-scrollbar-thumb:hover,
+.custom-quill-small .ql-container::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+@media (min-width: 640px) {
+    .custom-quill-small { min-height: 100px; max-height: 200px; }
+    .custom-quill-small .ql-toolbar { padding: 6px; }
+    .custom-quill-small .ql-toolbar button { padding: 4px; }
+    .custom-quill-small .ql-container { min-height: 80px; max-height: 160px; }
+    .custom-quill-small .ql-editor { min-height: 80px; max-height: 150px; }
+}
+@media (min-width: 1024px) {
+    .custom-quill-small { min-height: 110px; max-height: 220px; }
+    .custom-quill-small .ql-container { min-height: 90px; max-height: 180px; }
+    .custom-quill-small .ql-editor { min-height: 90px; max-height: 170px; }
+}
