@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('packages', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('days');
-            $table->string('people');
-            $table->string('resort');
-            $table->string('price');
-            $table->string('emoji');
+            $table->string('days')->nullable();
+            $table->string('people')->nullable();
+            $table->string('resort')->nullable();
+            $table->string('price')->nullable();
+            $table->string('emoji')->nullable();
             $table->foreignId('destination_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('category');
-            $table->longText('description');
-            $table->longText('includes');
-            $table->longText('excludes');
+            $table->string('category')->nullable();
+            $table->longText('description')->nullable();
+            $table->longText('includes')->nullable();
+            $table->longText('excludes')->nullable();
             $table->string('slug')->unique()->nullable();
             $table->timestamps();
         });

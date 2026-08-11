@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('package_itineraries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('package_id')->constrained()->onDelete('cascade');
-            $table->string('day');
-            $table->string('title');
-            $table->longText('description');
+            $table->string('day')->nullable();
+            $table->string('title')->nullable();
+            $table->longText('description')->nullable();
             $table->timestamps();
         });
     }

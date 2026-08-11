@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('destinations', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->longText('description');
-            $table->string('rating');
-            $table->string('price');
+            $table->longText('description')->nullable();
+            $table->string('rating')->nullable();
+            $table->string('price')->nullable();
             $table->string('slug')->unique()->nullable();
             $table->timestamps();
         });

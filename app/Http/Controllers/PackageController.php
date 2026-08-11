@@ -37,11 +37,11 @@ class PackageController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'days' => 'required|string|max:255',
-            'people' => 'required|string|max:255',
+            'days' => 'nullable|string|max:255',
+            'people' => 'nullable|string|max:255',
             'resort' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'destination_id' => 'required|exists:destinations,id',
+            'price' => 'nullable|numeric|min:0',
+            'destination_id' => 'nullable|exists:destinations,id',
             'category' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'includes' => 'nullable|string',
@@ -56,8 +56,8 @@ class PackageController extends Controller
 
             // Itinerary
             'itineraries' => 'nullable|array',
-            'itineraries.*.day' => 'required|integer|min:1',
-            'itineraries.*.title' => 'required|string|max:255',
+            'itineraries.*.day' => 'nullable|integer|min:1',
+            'itineraries.*.title' => 'nullable|string|max:255',
             'itineraries.*.description' => 'nullable|string',
         ]);
 
@@ -84,12 +84,12 @@ class PackageController extends Controller
              */
             $package = Package::create([
                 'title' => $validated['title'],
-                'days' => $validated['days'],
-                'people' => $validated['people'],
+                'days' => $validated['days'] ?? null,
+                'people' => $validated['people'] ?? null,
                 'resort' => $validated['resort'] ?? null,
-                'price' => $validated['price'],
+                'price' => $validated['price'] ?? null,
                 'emoji' => $emojiPath,
-                'destination_id' => $validated['destination_id'],
+                'destination_id' => $validated['destination_id'] ?? null,
                 'category' => $validated['category'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'includes' => $validated['includes'] ?? null,
@@ -124,8 +124,8 @@ class PackageController extends Controller
                 foreach ($validated['itineraries'] as $itinerary) {
 
                     $package->itineraries()->create([
-                        'day' => $itinerary['day'],
-                        'title' => $itinerary['title'],
+                        'day' => $itinerary['day'] ?? null,
+                        'title' => $itinerary['title'] ?? null,
                         'description' => $itinerary['description'] ?? null,
                     ]);
                 }
@@ -173,11 +173,11 @@ class PackageController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'days' => 'required|string|max:255',
-            'people' => 'required|string|max:255',
+            'days' => 'nullable|string|max:255',
+            'people' => 'nullable|string|max:255',
             'resort' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'destination_id' => 'required|exists:destinations,id',
+            'price' => 'nullable|numeric|min:0',
+            'destination_id' => 'nullable|exists:destinations,id',
             'category' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'includes' => 'nullable|string',
@@ -197,8 +197,8 @@ class PackageController extends Controller
 
             // Itinerary
             'itineraries' => 'nullable|array',
-            'itineraries.*.day' => 'required|integer|min:1',
-            'itineraries.*.title' => 'required|string|max:255',
+            'itineraries.*.day' => 'nullable|integer|min:1',
+            'itineraries.*.title' => 'nullable|string|max:255',
             'itineraries.*.description' => 'nullable|string',
         ]);
 
@@ -238,12 +238,12 @@ class PackageController extends Controller
              */
             $package->update([
                 'title' => $validated['title'],
-                'days' => $validated['days'],
-                'people' => $validated['people'],
+                'days' => $validated['days'] ?? null,
+                'people' => $validated['people'] ?? null,
                 'resort' => $validated['resort'] ?? null,
-                'price' => $validated['price'],
+                'price' => $validated['price'] ?? null,
                 'emoji' => $emojiPath,
-                'destination_id' => $validated['destination_id'],
+                'destination_id' => $validated['destination_id'] ?? null,
                 'category' => $validated['category'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'includes' => $validated['includes'] ?? null,
@@ -305,8 +305,8 @@ class PackageController extends Controller
                 foreach ($validated['itineraries'] as $itinerary) {
 
                     $package->itineraries()->create([
-                        'day' => $itinerary['day'],
-                        'title' => $itinerary['title'],
+                        'day' => $itinerary['day'] ?? null,
+                        'title' => $itinerary['title'] ?? null,
                         'description' => $itinerary['description'] ?? null,
                     ]);
                 }

@@ -31,9 +31,9 @@ class DestinationController extends Controller
     {
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'rating'      => 'nullable|numeric|min:0|max:5',
-            'price'       => 'required|numeric|min:0',
+            'price'       => 'nullable|numeric|min:0',
 
             'images'      => 'nullable|array',
             'images.*'    => 'image|mimes:jpeg,png,jpg,webp|max:5120',
@@ -41,9 +41,9 @@ class DestinationController extends Controller
 
         $destination = Destination::create([
             'title'       => $validated['title'],
-            'description' => $validated['description'],
-            'rating'      => $validated['rating'] ?? 0,
-            'price'       => $validated['price'],
+            'description' => $validated['description'] ?? null,
+            'rating'      => $validated['rating'] ?? null,
+            'price'       => $validated['price'] ?? null,
         ]);
 
         /*
@@ -93,9 +93,9 @@ class DestinationController extends Controller
 
         $validated = $request->validate([
             'title'       => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'rating'      => 'nullable|numeric|min:0|max:5',
-            'price'       => 'required|numeric|min:0',
+            'price'       => 'nullable|numeric|min:0',
 
             'images'      => 'nullable|array',
             'images.*'    => 'image|mimes:jpeg,png,jpg,webp|max:5120',
@@ -107,9 +107,9 @@ class DestinationController extends Controller
 
         $destination->update([
             'title'       => $validated['title'],
-            'description' => $validated['description'],
-            'rating'      => $validated['rating'] ?? 0,
-            'price'       => $validated['price'],
+            'description' => $validated['description'] ?? null,
+            'rating'      => $validated['rating'] ?? null,
+            'price'       => $validated['price'] ?? null,
         ]);
 
         /*
