@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Destination;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +18,10 @@ class DestinationController extends Controller
         $destinations = Destination::with('images')
             ->latest()
             ->paginate(10);
+
+        $destinations->getCollection()->transform(function ($destination) {
+            return $this->withSingleImage($destination);
+        });
 
         return response()->json([
             'success' => true,
@@ -35,8 +40,10 @@ class DestinationController extends Controller
             'rating'      => 'nullable|numeric|min:0|max:5',
             'price'       => 'nullable|numeric|min:0',
 
-            'images'      => 'nullable|array',
-            'images.*'    => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            // Single image for now. Kept as its own relation row (not a
+            // column on destinations) so this can grow back into
+            // multiple images later without a schema change.
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $destination = Destination::create([
@@ -48,26 +55,25 @@ class DestinationController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Store Destination Images
+        | Store Destination Image
         |--------------------------------------------------------------------------
         */
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('destinations', 'public');
 
-                $path = $image->store('destinations', 'public');
-
-                $destination->images()->create([
-                    'image' => $path,
-                ]);
-            }
+            $destination->images()->create([
+                'image' => $path,
+            ]);
         }
 
         $destination->load('images');
 
+        $this->logActivity($request, "Created destination: {$destination->title}");
+
         return response()->json([
             'success' => true,
             'message' => 'Destination created successfully.',
-            'data' => $destination,
+            'data' => $this->withSingleImage($destination),
         ], 201);
     }
 
@@ -80,7 +86,7 @@ class DestinationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $destination,
+            'data' => $this->withSingleImage($destination),
         ]);
     }
 
@@ -92,17 +98,14 @@ class DestinationController extends Controller
         $destination = Destination::with('images')->findOrFail($id);
 
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'rating'      => 'nullable|numeric|min:0|max:5',
-            'price'       => 'nullable|numeric|min:0',
+            'title'        => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'rating'       => 'nullable|numeric|min:0|max:5',
+            'price'        => 'nullable|numeric|min:0',
 
-            'images'      => 'nullable|array',
-            'images.*'    => 'image|mimes:jpeg,png,jpg,webp|max:5120',
-
-            // Existing image IDs that should remain
-            'existing_images'   => 'nullable|array',
-            'existing_images.*' => 'integer|exists:destination_images,id',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            // Set when the user removed the image without picking a replacement.
+            'remove_image' => 'nullable|boolean',
         ]);
 
         $destination->update([
@@ -112,51 +115,47 @@ class DestinationController extends Controller
             'price'       => $validated['price'] ?? null,
         ]);
 
+        $replacingImage = $request->hasFile('image');
+        $removingImage  = (bool) ($validated['remove_image'] ?? false);
+
         /*
         |--------------------------------------------------------------------------
-        | Delete Removed Images
+        | Replace / Remove Existing Image
         |--------------------------------------------------------------------------
+        | Only one image is kept at a time right now, so a new upload or an
+        | explicit removal clears out whatever is already attached first.
         */
+        if ($replacingImage || $removingImage) {
+            foreach ($destination->images as $image) {
+                if ($image->image && Storage::disk('public')->exists($image->image)) {
+                    Storage::disk('public')->delete($image->image);
+                }
 
-        $existingImageIds = $validated['existing_images'] ?? [];
-
-        $imagesToDelete = $destination->images()
-            ->whereNotIn('id', $existingImageIds)
-            ->get();
-
-        foreach ($imagesToDelete as $image) {
-
-            if ($image->image && Storage::disk('public')->exists($image->image)) {
-                Storage::disk('public')->delete($image->image);
+                $image->delete();
             }
-
-            $image->delete();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Add New Images
+        | Add New Image
         |--------------------------------------------------------------------------
         */
+        if ($replacingImage) {
+            $path = $request->file('image')->store('destinations', 'public');
 
-        if ($request->hasFile('images')) {
-
-            foreach ($request->file('images') as $image) {
-
-                $path = $image->store('destinations', 'public');
-
-                $destination->images()->create([
-                    'image' => $path,
-                ]);
-            }
+            $destination->images()->create([
+                'image' => $path,
+            ]);
         }
 
         $destination->load('images');
 
+        $this->logActivity($request, "Updated destination: {$destination->title}");
+
         return response()->json([
             'success' => true,
             'message' => 'Destination updated successfully.',
-            'data' => $destination,
+            'data' => $this->withSingleImage($destination),
         ]);
     }
 
@@ -166,6 +165,8 @@ class DestinationController extends Controller
     public function destroy($id)
     {
         $destination = Destination::with('images')->findOrFail($id);
+
+        $title = $destination->title;
 
         /*
         |--------------------------------------------------------------------------
@@ -190,9 +191,35 @@ class DestinationController extends Controller
 
         $destination->delete();
 
+        $this->logActivity(request(), "Deleted destination: {$title}");
+
         return response()->json([
             'success' => true,
             'message' => 'Destination deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Append a convenience `image` (singular) attribute mirroring the first
+     * related image, so the frontend can consume a single field while the
+     * underlying relation stays ready for multiple images later.
+     */
+    protected function withSingleImage(Destination $destination): Destination
+    {
+        $destination->setAttribute('image', optional($destination->images->first())->image);
+
+        return $destination;
+    }
+
+    /**
+     * Record an activity log entry.
+     */
+    protected function logActivity(Request $request, string $title): void
+    {
+        ActivityLog::create([
+            'name'       => optional($request->user())->name ?? 'Guest',
+            'ip_address' => $request->ip(),
+            'title'      => $title,
         ]);
     }
 }

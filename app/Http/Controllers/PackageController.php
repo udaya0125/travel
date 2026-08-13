@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,8 +20,8 @@ class PackageController extends Controller
             'itineraries',
             'destination',
         ])
-        ->latest()
-        ->paginate(10);
+            ->latest()
+            ->paginate(10);
 
         return response()->json([
             'status' => true,
@@ -29,6 +30,60 @@ class PackageController extends Controller
         ]);
     }
 
+    /**
+     * Display a single package by its slug.
+     */
+    /**
+     * Display a single package by its slug.
+     */
+    public function indexShowPackageSlug($slug)
+    {
+        $package = Package::with([
+            'images',
+            'itineraries',
+            'destination',
+        ])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return response()->json([
+            'status' => true,
+            'data' => $package,
+        ]);
+    }
+
+    /**
+     * Display a lightweight listing of packages
+     * (title, days, people, resort, price + first image only).
+     */
+    public function indexList()
+    {
+        $packages = Package::select('id', 'title', 'slug', 'days', 'people', 'resort', 'price')
+            ->with(['images' => function ($query) {
+                $query->oldest('id')->limit(1);
+            }])
+            ->latest()
+            ->paginate(10);
+
+        $packages->getCollection()->transform(function ($package) {
+            return [
+                'id' => $package->id,
+                'slug' => $package->slug,
+                'title' => $package->title,
+                'days' => $package->days,
+                'people' => $package->people,
+                'resort' => $package->resort,
+                'price' => $package->price,
+                'image' => optional($package->images->first())->image,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Packages fetched successfully.',
+            'data' => $packages,
+        ]);
+    }
 
     /**
      * Store a newly created package.
@@ -96,7 +151,6 @@ class PackageController extends Controller
                 'excludes' => $validated['excludes'] ?? null,
             ]);
 
-
             /*
              * Store Images
              */
@@ -115,11 +169,10 @@ class PackageController extends Controller
                 }
             }
 
-
             /*
              * Store Itinerary
              */
-            if (!empty($validated['itineraries'])) {
+            if (! empty($validated['itineraries'])) {
 
                 foreach ($validated['itineraries'] as $itinerary) {
 
@@ -131,7 +184,6 @@ class PackageController extends Controller
                 }
             }
 
-
             DB::commit();
 
             $package->load([
@@ -139,6 +191,8 @@ class PackageController extends Controller
                 'itineraries',
                 'destination',
             ]);
+
+            $this->logActivity($request, "Created package: {$package->title}");
 
             return response()->json([
                 'status' => true,
@@ -162,7 +216,6 @@ class PackageController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Update the specified package.
@@ -232,7 +285,6 @@ class PackageController extends Controller
                 $emojiPath = null;
             }
 
-
             /*
              * Update package information.
              */
@@ -249,7 +301,6 @@ class PackageController extends Controller
                 'includes' => $validated['includes'] ?? null,
                 'excludes' => $validated['excludes'] ?? null,
             ]);
-
 
             /*
              * Handle Gallery Images
@@ -272,7 +323,6 @@ class PackageController extends Controller
                 $oldImage->delete();
             }
 
-
             /*
              * Upload new images.
              */
@@ -291,7 +341,6 @@ class PackageController extends Controller
                 }
             }
 
-
             /*
              * Replace itinerary.
              *
@@ -300,7 +349,7 @@ class PackageController extends Controller
              */
             $package->itineraries()->delete();
 
-            if (!empty($validated['itineraries'])) {
+            if (! empty($validated['itineraries'])) {
 
                 foreach ($validated['itineraries'] as $itinerary) {
 
@@ -312,7 +361,6 @@ class PackageController extends Controller
                 }
             }
 
-
             DB::commit();
 
             $package->load([
@@ -320,6 +368,8 @@ class PackageController extends Controller
                 'itineraries',
                 'destination',
             ]);
+
+            $this->logActivity($request, "Updated package: {$package->title}");
 
             return response()->json([
                 'status' => true,
@@ -339,13 +389,14 @@ class PackageController extends Controller
         }
     }
 
-
     /**
      * Remove the specified package.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $package = Package::findOrFail($id);
+
+        $title = $package->title;
 
         DB::beginTransaction();
 
@@ -357,7 +408,6 @@ class PackageController extends Controller
             if ($package->emoji && Storage::disk('public')->exists($package->emoji)) {
                 Storage::disk('public')->delete($package->emoji);
             }
-
 
             /*
              * Delete package gallery images from storage.
@@ -371,12 +421,10 @@ class PackageController extends Controller
                 $image->delete();
             }
 
-
             /*
              * Delete itinerary.
              */
             $package->itineraries()->delete();
-
 
             /*
              * Delete package.
@@ -384,6 +432,8 @@ class PackageController extends Controller
             $package->delete();
 
             DB::commit();
+
+            $this->logActivity($request, "Deleted package: {$title}");
 
             return response()->json([
                 'status' => true,
@@ -400,5 +450,52 @@ class PackageController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+
+    /**
+ * Delete a single package image.
+ */
+public function destroyImage(Request $request, $imageId)
+{
+    $image = \App\Models\PackageImage::findOrFail($imageId);
+
+    $package = $image->package;
+
+    try {
+        if ($image->image && Storage::disk('public')->exists($image->image)) {
+            Storage::disk('public')->delete($image->image);
+        }
+
+        $image->delete();
+
+        if ($package) {
+            $this->logActivity($request, "Deleted an image from package: {$package->title}");
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Image deleted successfully.',
+        ]);
+
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to delete image.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+    /**
+     * Record an activity log entry.
+     */
+    protected function logActivity(Request $request, string $title): void
+    {
+        ActivityLog::create([
+            'name' => optional($request->user())->name ?? 'Guest',
+            'ip_address' => $request->ip(),
+            'title' => $title,
+        ]);
     }
 }
