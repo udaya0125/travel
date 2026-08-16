@@ -907,7 +907,7 @@ const defaultFormValues = {
     itineraries: [{ ...emptyItineraryRow }],
 };
 
-const MAX_IMAGE_SIZE_MB = 5;
+const MAX_IMAGE_SIZE_MB = 2;
 const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 
 const formatFileSize = (bytes) => `${(bytes / (1024 * 1024)).toFixed(2)}MB`;

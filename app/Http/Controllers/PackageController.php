@@ -107,7 +107,7 @@ class PackageController extends Controller
 
             // Gallery images
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB
 
             // Itinerary
             'itineraries' => 'nullable|array',
@@ -242,7 +242,7 @@ class PackageController extends Controller
 
             // New gallery images
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB
 
             // Existing gallery images that should remain
             'existing_images' => 'nullable|array',

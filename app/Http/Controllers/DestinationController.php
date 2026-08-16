@@ -43,7 +43,7 @@ class DestinationController extends Controller
             // Single image for now. Kept as its own relation row (not a
             // column on destinations) so this can grow back into
             // multiple images later without a schema change.
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB
         ]);
 
         $destination = Destination::create([
@@ -103,7 +103,7 @@ class DestinationController extends Controller
             'rating'       => 'nullable|numeric|min:0|max:5',
             'price'        => 'nullable|numeric|min:0',
 
-            'image'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB
             // Set when the user removed the image without picking a replacement.
             'remove_image' => 'nullable|boolean',
         ]);
