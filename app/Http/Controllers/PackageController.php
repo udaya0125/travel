@@ -103,11 +103,11 @@ class PackageController extends Controller
             'excludes' => 'nullable|string',
 
             // Emoji is now an image upload (a small package icon/thumbnail)
-            'emoji' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
+            'emoji' => 'nullable|image|max:2048',
 
             // Gallery images
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB
+            'images.*' => 'image|max:2048', // 2MB
 
             // Itinerary
             'itineraries' => 'nullable|array',
@@ -237,12 +237,12 @@ class PackageController extends Controller
             'excludes' => 'nullable|string',
 
             // Emoji/icon image: either a new file, or a flag to remove the existing one
-            'emoji' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
+            'emoji' => 'nullable|image|max:2048',
             'remove_emoji' => 'nullable|boolean',
 
             // New gallery images
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB
+            'images.*' => 'image|max:2048', // 2MB
 
             // Existing gallery images that should remain
             'existing_images' => 'nullable|array',
