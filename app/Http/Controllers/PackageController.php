@@ -56,9 +56,42 @@ class PackageController extends Controller
      * Display a lightweight listing of packages
      * (title, days, people, resort, price + first image only).
      */
+    // public function indexList()
+    // {
+    //     $packages = Package::select('id', 'title', 'slug', 'days', 'people', 'resort', 'price')
+    //         ->with(['images' => function ($query) {
+    //             $query->oldest('id')->limit(1);
+    //         }])
+    //         ->latest()
+    //         ->paginate(10);
+
+    //     $packages->getCollection()->transform(function ($package) {
+    //         return [
+    //             'id' => $package->id,
+    //             'slug' => $package->slug,
+    //             'title' => $package->title,
+    //             'days' => $package->days,
+    //             'people' => $package->people,
+    //             'resort' => $package->resort,
+    //             'price' => $package->price,
+    //             'image' => optional($package->images->first())->image,
+    //         ];
+    //     });
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Packages fetched successfully.',
+    //         'data' => $packages,
+    //     ]);
+    // }
+
+        /**
+     * Display a lightweight listing of packages
+     * (title, days, people, resort, price, description + first image only).
+     */
     public function indexList()
     {
-        $packages = Package::select('id', 'title', 'slug', 'days', 'people', 'resort', 'price')
+        $packages = Package::select('id', 'title', 'slug', 'days', 'people', 'resort', 'price', 'description')
             ->with(['images' => function ($query) {
                 $query->oldest('id')->limit(1);
             }])
@@ -74,6 +107,7 @@ class PackageController extends Controller
                 'people' => $package->people,
                 'resort' => $package->resort,
                 'price' => $package->price,
+                'description' => $package->description,
                 'image' => optional($package->images->first())->image,
             ];
         });
